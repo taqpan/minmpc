@@ -1,0 +1,270 @@
+﻿<Window x:Class="minmpc.MainWindow"
+        x:ClassModifier="internal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converter="clr-namespace:minmpc.Converter"
+        xmlns:core="clr-namespace:minmpc.Core"
+        Title="minmpc" Icon="Resources/minmpc.ico"
+        Width="480" MinWidth="480"
+        Height="146" MinHeight="146" MaxHeight="146"
+        WindowStyle="None" ShowActivated="True"
+        WindowStartupLocation="Manual"
+        Background="#393c40"
+        Foreground="#e8eaf0"
+        FontSize="14" FontFamily="Meiryo, Segoe"
+        Loaded="MainWindow_OnLoaded"
+        Closed="MainWindow_OnClosed">
+    <Window.Resources>
+        <converter:TimeFormatConverter x:Key="TimeFormatConverter"/>
+        <converter:PlaybackStatusConverter x:Key="PlaybackStatusConverter"/>
+        <SolidColorBrush x:Key="WindowBorderBrush" Color="#131416"/>
+        <SolidColorBrush x:Key="CaptionAreaBrush" Color="#484a4e"/>
+        <SolidColorBrush x:Key="ButtonIconBrush" Color="#e8eaf0"/>
+        <SolidColorBrush x:Key="OffButtonIconBrush" Color="#a0a4b0"/>
+        <DropShadowEffect x:Key="ButtonHighlightEffect"
+                          Color="White" Opacity="0.75"
+                          Direction="135" ShadowDepth="0"
+                          BlurRadius="12"/>
+        <DropShadowEffect x:Key="ActiveButtonEffect"
+                          Color="#c8d0ff" Opacity="0.85"
+                          Direction="135" ShadowDepth="0"
+                          BlurRadius="12"/>
+        <Style x:Key="SystemButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Width" Value="18"/>
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Name="bd" Padding="1" Background="#01393c40">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Effect" Value="{StaticResource ButtonHighlightEffect}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Padding" Value="2,2,0,0"/>
+                                <Setter Property="Effect" Value="{StaticResource ButtonHighlightEffect}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="PlayerButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Width" Value="48"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Name="bd" Padding="4" Background="#01393c40">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Effect" Value="{StaticResource ButtonHighlightEffect}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Padding" Value="6,6,2,2"/>
+                                <Setter Property="Effect" Value="{StaticResource ButtonHighlightEffect}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="OptionButtonStyle" TargetType="{x:Type ToggleButton}">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="{StaticResource OffButtonIconBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Border Name="bd" Padding="4" Background="#01393c40">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource ButtonIconBrush}"/>
+                                <Setter Property="Effect" Value="{StaticResource ActiveButtonEffect}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Padding" Value="6,6,2,2"/>
+                                <Setter Property="Effect" Value="{StaticResource ButtonHighlightEffect}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Effect" Value="{StaticResource ButtonHighlightEffect}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Storyboard x:Key="Fade">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             From ="1" To="0" Duration="0:0:3"/>
+        </Storyboard>
+    </Window.Resources>
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="24" ResizeBorderThickness="8"/>
+    </WindowChrome.WindowChrome>
+    <Border BorderThickness="1" BorderBrush="{StaticResource WindowBorderBrush}">
+        <StackPanel Orientation="Vertical">
+            <DockPanel Height="24" Background="{StaticResource CaptionAreaBrush}">
+                <TextBlock DockPanel.Dock="Left" Margin="8,2">
+                    minmpc - <Run Text="{Binding PlaybackStatus.Value, Converter={StaticResource PlaybackStatusConverter}}"/>
+                </TextBlock>
+                <TextBlock DockPanel.Dock="Left" Text="{Binding Error}"/>
+                <Button DockPanel.Dock="Right"
+                        Style="{StaticResource SystemButtonStyle}"
+                        Margin="0,0,3,0"
+                        WindowChrome.IsHitTestVisibleInChrome="True"
+                        Click="ButtonBase_OnClick">
+                    <Grid>
+                        <Path Data="M 7,0 v 8 h 2 v -8 Z M 5,2 A 7,7 330 1 0 11,2 v 2 A 5,5 330 1 1 5,4 Z"
+                              Fill="{StaticResource ButtonIconBrush}"
+                              RenderTransform="1,0,0,1,0,0"/>
+                    </Grid>
+                </Button>
+                <Button DockPanel.Dock="Right"
+                        Style="{StaticResource SystemButtonStyle}"
+                        Margin="0,0,6,0"
+                        WindowChrome.IsHitTestVisibleInChrome="True"
+                        Click="MinimizeButton_OnClick">
+                    <Grid>
+                        <Path Data="M 1.5,14.5 h 13 v -2 h -13 Z"
+                              Fill="{StaticResource ButtonIconBrush}"
+                              RenderTransform="1,0,0,1,0,0"/>
+                    </Grid>
+                </Button>
+                <Grid/>
+            </DockPanel>
+            <StackPanel Orientation="Vertical" Margin="8,8,8,4">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Right"
+                               VerticalAlignment="Center"
+                               Margin="8,0,0,0"
+                               FontFamily="Segoe" FontSize="28">
+                        <Run Text="{Binding Elapsed.Value, Mode=OneWay, Converter={StaticResource TimeFormatConverter}}"></Run>
+                        <Run Text="/"></Run>
+                        <Run Text="{Binding Duration.Value, Mode=OneWay, Converter={StaticResource TimeFormatConverter}}"></Run>
+                    </TextBlock>
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock FontSize="18">
+                            <Run Text="{Binding Artist.Value, Mode=OneWay}"/>
+                            <Run Text=" - "/>
+                            <Run Text="{Binding Title.Value, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock Margin="0,6,0,0" FontSize="12">
+                            <Run Text="{Binding AlbumArtist.Value, Mode=OneWay}"/>
+                            <Run Text=" - "/>
+                            <Run Text="{Binding Album.Value, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </DockPanel>
+
+                <DockPanel Margin="0,6,0,0">
+                    <ToggleButton DockPanel.Dock="Left"
+                                  IsChecked="{Binding Random.Value}"
+                                  Style="{StaticResource OptionButtonStyle}">
+                        <Grid Margin="0">
+                            <Path Data="m 29.41797,2.9637 -0.0137,4.5352 -4.9043,0 a 2.50025,2.50025 0 0 0 -2.09567,1.1387 l -2.61524,4.0234 2.98242,4.5859 3.08594,-4.748 3.53125,0 -0.0137,4.4297 8.125,-6.9297 -8.08203,-7.0352 z M 2.5,7.4989 l 0,5 7.64258,0 12.26172,18.8633 a 2.50025,2.50025 0 0 0 2.0957,1.1367 l 4.9043,0 0.0137,4.5371 8.08203,-7.0371 -8.125,-6.9277 0.0137,4.4277 -3.53125,0 -12.26178,-18.8613 A 2.50025,2.50025 0 0 0 11.5,7.4989 l -9,0 z m 10.72852,15.2519 -3.08594,4.7481 -7.64258,0 0,5 9,0 a 2.50025,2.50025 0 0 0 2.0957,-1.1367 l 2.61524,-4.0235 -2.98242,-4.5879 z"
+                                  Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ToggleButton}}"
+                                  RenderTransform="0.6,0,0,0.6,5,5" Stretch="Uniform"/>
+                        </Grid>
+                    </ToggleButton>
+                    <ToggleButton DockPanel.Dock="Left"
+                                  IsChecked="{Binding Repeat.Value}"
+                                  Style="{StaticResource OptionButtonStyle}">
+                        <Grid>
+                            <Path Data="m 28.937529,3.0362 0.0137,4.4629 -8.95119,0 -10.000022,0 c -4.1117794,0 -7.500017,3.3882 -7.500017,7.5 l 0,10 c 0,0.1371 0.014,0.2709 0.0215,0.4063 l 4.978531,-4.3672 0,-6.0391 c 0,-1.4282 1.071743,-2.5 2.500006,-2.5 l 10.000022,0 8.96486,0 0.0137,4.502 8.021498,-7.0352 -8.062519,-6.9297 z m 8.54104,11.5567 -4.978531,4.3672 0,6.039 c 0,1.4283 -1.071743,2.5 -2.500006,2.5 l -10.000023,0 -8.964859,0 -0.0137,-4.5 -8.0214979,7.0352 8.0625189,6.9297 -0.0137,-4.4649 8.95119,0 10.000022,0 c 4.111779,0 7.500017,-3.3882 7.500017,-7.5 l 0,-10 c 0,-0.1371 -0.014,-0.2709 -0.0215,-0.4062 z"
+                                  Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ToggleButton}}"
+                                  RenderTransform="0.6,0,0,0.6,5,5" Stretch="Uniform"/>
+                        </Grid>
+                    </ToggleButton>
+                    <Button DockPanel.Dock="Left"
+                            Command="{Binding StopCommand}"
+                            Style="{StaticResource PlayerButtonStyle}"
+                            Width="32" Height="32" Margin="22,0">
+                        <Grid>
+                            <Path Data="M 35,35 v -30 h -30 v 30 h 30 Z"
+                                  Fill="{StaticResource ButtonIconBrush}"
+                                  RenderTransform="0.6,0,0,0.6,5,5" Stretch="Uniform"/>
+                        </Grid>
+                    </Button>
+                    <Button DockPanel.Dock="Left"
+                            Command="{Binding PreviousCommand}"
+                            Style="{StaticResource PlayerButtonStyle}">
+                        <Grid>
+                            <Grid>
+                                <Path Data="M 18,21 v 11 l 18,-11 v 11 h 4 v -24 h -4 v 11 l -18,-11 v 11 l -18,-11 v 24 Z"
+                                      Fill="{StaticResource ButtonIconBrush}"
+                                      RenderTransform="-0.75,0,0,0.75,35,5"/>
+                            </Grid>
+                        </Grid>
+                    </Button>
+                    <Grid DockPanel.Dock="Left">
+                        <Button Command="{Binding PlayCommand}" Margin="10,0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PlayerButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding PlaybackStatus.Value}" Value="{x:Static core:PlaybackStatus.Play}">
+                                            <Setter Property="Visibility" Value="Hidden"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <Grid>
+                                <Path Data="M 3,0 v 40 l 37,-20 Z"
+                                      Fill="{StaticResource ButtonIconBrush}"
+                                      RenderTransform="0.75,0,0,0.75,5,5"/>
+                            </Grid>
+                        </Button>
+                        <Button Command="{Binding PauseCommand}" Margin="10,0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PlayerButtonStyle}">
+                                    <Setter Property="Visibility" Value="Hidden"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding PlaybackStatus.Value}" Value="{x:Static core:PlaybackStatus.Play}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <Grid>
+                                <Path Data="M 4,5 v 30 h 12 v -30 Z M 24,5 v 30 h 12 v -30 Z"
+                                      Fill="{StaticResource ButtonIconBrush}"
+                                      RenderTransform="0.75,0,0,0.75,5,5"/>
+                            </Grid>
+                        </Button>
+                    </Grid>
+                    <Button DockPanel.Dock="Left"
+                            Command="{Binding NextCommand}"
+                            Style="{StaticResource PlayerButtonStyle}">
+                        <Grid>
+                            <Path Data="M 18,21 v 11 l 18,-11 v 11 h 4 v -24 h -4 v 11 l -18,-11 v 11 l -18,-11 v 24 Z"
+                                  Fill="{StaticResource ButtonIconBrush}"
+                                  RenderTransform="0.75,0,0,0.75,5,5"/>
+                        </Grid>
+                    </Button>
+                    <DockPanel Height="48" Margin="20,0,0,0"
+                               VerticalAlignment="Center">
+                        <Grid DockPanel.Dock="Left" Margin="6,4">
+                            <Path Data="M 10,14 h -6 v 12 h 6 l 8,8 v -28 Z M 21,11 a 10,10 180 0 1 0,18 v -3 a 10,8 180 0 0 0,-12 Z"
+                                  Fill="{StaticResource ButtonIconBrush}"
+                                  RenderTransform="0.75,0,0,0.75,5,5"/>
+                        </Grid>
+                        <Slider Name="VolumeSlider" Orientation="Horizontal"
+                                Height="24"
+                                Minimum="0" Maximum="100" Value="{Binding Volume.Value}"
+                                MouseWheel="VolumeSlider_OnMouseWheel">
+                        </Slider>
+                    </DockPanel>
+                </DockPanel>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>
