@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,7 +41,7 @@ namespace minmpc {
             hotkeyManager.Unregister();
         }
 
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e) {
+        private void QuitButton_OnClick(object sender, RoutedEventArgs e) {
             Close();
         }
 
@@ -56,32 +57,38 @@ namespace minmpc {
             }
         }
 
+        #region hotkey
         public void OnHotKeyPlayPause(object sender, EventArgs e) {
-            var app = (App)Application.Current;
-            if (viewModel.PlaybackStatus.Value == PlaybackStatus.Play) {
-                app.Container.Resolve<MpdClient>().Pause(true);
-            } else {
-                app.Container.Resolve<MpdClient>().Play();
+            if (viewModel.PlayPauseCommand.CanExecute()) {
+                viewModel.PlayPauseCommand.Execute();
             }
         }
 
         public void OnHotKeyNext(object sender, EventArgs e) {
-            var app = (App)Application.Current;
-            app.Container.Resolve<MpdClient>().Next();
+            if (viewModel.NextCommand.CanExecute()) {
+                viewModel.NextCommand.Execute();
+            }
         }
 
         public void OnHotKeyPrevious(object sender, EventArgs e) {
-            var app = (App)Application.Current;
-            app.Container.Resolve<MpdClient>().Previous();
+            if (viewModel.PreviousCommand.CanExecute()) {
+                viewModel.PreviousCommand.Execute();
+            }
         }
 
         public void OnHotKeyStop(object sender, EventArgs e) {
-            var app = (App)Application.Current;
-            app.Container.Resolve<MpdClient>().Stop();
+            if (viewModel.StopCommand.CanExecute()) {
+                viewModel.StopCommand.Execute();
+            }
         }
+        #endregion
 
         private void MinimizeButton_OnClick(object sender, RoutedEventArgs e) {
             this.WindowState = WindowState.Minimized;
+        }
+
+        private void MainWindow_OnMouseMove(object sender, MouseEventArgs e) {
+            viewModel.IsVisible.Value = true;
         }
     }
 }

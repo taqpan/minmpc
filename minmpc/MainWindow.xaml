@@ -7,13 +7,15 @@
         Title="minmpc" Icon="Resources/minmpc.ico"
         Width="480" MinWidth="480"
         Height="146" MinHeight="146" MaxHeight="146"
-        WindowStyle="None" ShowActivated="True"
+        WindowStyle="None" AllowsTransparency="True"
+        ShowActivated="True" Topmost="True" ShowInTaskbar="False"
         WindowStartupLocation="Manual"
         Background="#393c40"
         Foreground="#e8eaf0"
         FontSize="14" FontFamily="Meiryo, Segoe"
         Loaded="MainWindow_OnLoaded"
-        Closed="MainWindow_OnClosed">
+        Closed="MainWindow_OnClosed"
+        MouseMove="MainWindow_OnMouseMove">
     <Window.Resources>
         <converter:TimeFormatConverter x:Key="TimeFormatConverter"/>
         <converter:PlaybackStatusConverter x:Key="PlaybackStatusConverter"/>
@@ -103,14 +105,40 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Storyboard x:Key="Fade">
-            <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                             From ="1" To="0" Duration="0:0:3"/>
-        </Storyboard>
     </Window.Resources>
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="24" ResizeBorderThickness="8"/>
-    </WindowChrome.WindowChrome>
+    <Window.Style>
+        <Style TargetType="Window">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsVisible.Value, Mode=OneWay}" Value="false">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <BeginStoryboard.Storyboard>
+                                <Storyboard TargetProperty="Opacity">
+                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity">
+                                        <DoubleAnimationUsingKeyFrames.KeyFrames>
+                                            <LinearDoubleKeyFrame KeyTime="0:0:0" Value="1"/>
+                                            <LinearDoubleKeyFrame KeyTime="0:0:4" Value="1"/>
+                                            <LinearDoubleKeyFrame KeyTime="0:0:6" Value="0"/>
+                                        </DoubleAnimationUsingKeyFrames.KeyFrames>
+                                    </DoubleAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </BeginStoryboard.Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <BeginStoryboard>
+                            <BeginStoryboard.Storyboard>
+                                <Storyboard TargetProperty="Opacity">
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                     To="1" Duration="0:0:0.2"/>
+                                </Storyboard>
+                            </BeginStoryboard.Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Style>
     <Border BorderThickness="1" BorderBrush="{StaticResource WindowBorderBrush}">
         <StackPanel Orientation="Vertical">
             <DockPanel Height="24" Background="{StaticResource CaptionAreaBrush}">
@@ -122,7 +150,7 @@
                         Style="{StaticResource SystemButtonStyle}"
                         Margin="0,0,3,0"
                         WindowChrome.IsHitTestVisibleInChrome="True"
-                        Click="ButtonBase_OnClick">
+                        Click="QuitButton_OnClick">
                     <Grid>
                         <Path Data="M 7,0 v 8 h 2 v -8 Z M 5,2 A 7,7 330 1 0 11,2 v 2 A 5,5 330 1 1 5,4 Z"
                               Fill="{StaticResource ButtonIconBrush}"

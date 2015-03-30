@@ -22,7 +22,6 @@ namespace minmpc.ViewModel {
         [Resource]
         private MpdClient mpdClient;
 
-        public ReactiveProperty<int> SongId { get; private set; }
         public ReactiveProperty<string> Title { get; private set; }
         public ReactiveProperty<string> Artist { get; private set; }
         public ReactiveProperty<string> Album { get; private set; }
@@ -45,16 +44,12 @@ namespace minmpc.ViewModel {
         public ReactiveCommand NextCommand { get; private set; }
         public ReactiveCommand StopCommand { get; private set; }
 
+        public ReactiveProperty<bool> IsVisible { get; private set; }
+
         public MainWindowViewModel(MpdClient mpdClient) {
             this.mpdClient = mpdClient;
 
             var mode = ReactivePropertyMode.DistinctUntilChanged;
-
-            SongId = mpdClient.PlayerStatusAsObservable()
-                .Select(_ => _.Status.SongId)
-                .ToReactiveProperty(Disposable, mode);
-            SongId.Subscribe(_ => {
-            });
 
             Title = mpdClient.PlayerStatusAsObservable()
                 .Select(_ => _.Status.Title)
@@ -140,9 +135,21 @@ namespace minmpc.ViewModel {
             StopCommand = new ReactiveCommand();
             StopCommand.Subscribe(_ => mpdClient.Stop());
 
+            IsVisible = new ReactiveProperty<bool>();
+            mpdClient.PlayerStatusAsObservable()
+                .Select(_ => _.Status.SongId)
+                .DistinctUntilChanged()
+                .Subscribe(_ => IsVisible.Value = true);
+            PlaybackStatus
+                .DistinctUntilChanged()
+                .Where(_ => _ != Core.PlaybackStatus.Stop)
+                .Subscribe(_ => IsVisible.Value = true);
+
             Observable.Interval(TimeSpan.FromMilliseconds(1000))
-                .Where(_ => true)
-                .Subscribe(_ => mpdClient.Refresh());
+                .Subscribe(_ => {
+                    IsVisible.Value = false;
+                    mpdClient.Refresh();
+                });
 
             mpdClient.Refresh();
         }

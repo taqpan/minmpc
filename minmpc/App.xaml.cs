@@ -27,11 +27,11 @@ namespace minmpc {
             Container.Resolve<MpdClient>().Start(cancellationTokenSource.Token);
             Container.Resolve<MainWindow>().Show();
 
-            //Container.Resolve<TrayIcon>().Initialize();
+            Container.Resolve<TrayIcon>().Initialize();
         }
 
         private void App_OnExit(object sender, ExitEventArgs e) {
-            //Container.Resolve<TrayIcon>().Dispose();
+            Container.Resolve<TrayIcon>().Dispose();
 
             cancellationTokenSource.Cancel();
         }
