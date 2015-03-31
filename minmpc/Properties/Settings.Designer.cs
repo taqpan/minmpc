@@ -26,12 +26,12 @@ namespace minmpc.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1")]
-        public string IpAddr {
+        public string Host {
             get {
-                return ((string)(this["IpAddr"]));
+                return ((string)(this["Host"]));
             }
             set {
-                this["IpAddr"] = value;
+                this["Host"] = value;
             }
         }
         

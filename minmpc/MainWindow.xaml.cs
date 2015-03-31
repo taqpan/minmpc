@@ -90,5 +90,11 @@ namespace minmpc {
         private void MainWindow_OnMouseMove(object sender, MouseEventArgs e) {
             viewModel.IsVisible.Value = true;
         }
+
+        private void OptionsButton_OnClick(object sender, RoutedEventArgs e) {
+            var optionsWindow = new OptionsWindow();
+            optionsWindow.Owner = this;
+            optionsWindow.ShowDialog();
+        }
     }
 }

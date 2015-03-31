@@ -1,0 +1,39 @@
+﻿<Window x:Class="minmpc.OptionsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="minmpc - Options"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize" WindowStyle="ToolWindow"
+        Icon="minmpc.ico" ShowInTaskbar="True"
+        SizeToContent="Height" Width="240"
+        Loaded="OptionsWindow_OnLoaded"
+        Closed="OptionsWindow_OnClosed"
+        FontSize="14">
+    <StackPanel Orientation="Vertical">
+        <Grid Margin="8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0">Host</Label>
+            <TextBox Grid.Row="0" Grid.Column="1"
+                     Text="{Binding Host.Value, Mode=TwoWay}"/>
+            <Label Grid.Row="1" Grid.Column="0">Port</Label>
+            <TextBox Grid.Row="1" Grid.Column="1"
+                     Text="{Binding Port.Value, Mode=TwoWay}"/>
+        </Grid>
+        <DockPanel>
+            <Button DockPanel.Dock="Right" IsCancel="True"
+                    Margin="8" Width="80"
+                    Content="Cancel"/>
+            <Button DockPanel.Dock="Right" IsDefault="True"
+                    Margin="8" Width="80"
+                    Content="Save" Click="SaveButton_Click"/>
+            <Grid/>
+        </DockPanel>
+    </StackPanel>
+</Window>

@@ -19,7 +19,7 @@ namespace minmpc.Core {
         public int Port { get; set; }
 
         public void Initialize() {
-            Host = Settings.Default.IpAddr;
+            Host = Settings.Default.Host;
             Port = Settings.Default.Port;
             encoding = Encoding.UTF8;
         }

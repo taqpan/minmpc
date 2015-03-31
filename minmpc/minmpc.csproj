@@ -100,7 +100,11 @@
     <Compile Include="Core\PlayerStatusEventArgs.cs" />
     <Compile Include="Core\RequestMethods.cs" />
     <Compile Include="HotkeyManager.cs" />
+    <Compile Include="OptionsWindow.xaml.cs">
+      <DependentUpon>OptionsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TrayIcon.cs" />
+    <Compile Include="ViewModel\OptionsWindowViewModel.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Page Include="MainWindow.xaml">
@@ -115,6 +119,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="OptionsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
