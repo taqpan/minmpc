@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Windows;
 using Autofac;
 using Autofac.AttributedComponent;
 using minmpc.Core;
 using Reactive.Bindings;
-using Reactive.Bindings.Extensions;
 
 namespace minmpc.ViewModel {
     [Component(Scope = ComponentScope.SingleInstance)]
@@ -22,6 +16,7 @@ namespace minmpc.ViewModel {
         [Resource]
         private MpdClient mpdClient;
 
+        public ReactiveProperty<int> SongId { get; private set; }
         public ReactiveProperty<string> Title { get; private set; }
         public ReactiveProperty<string> Artist { get; private set; }
         public ReactiveProperty<string> Album { get; private set; }
@@ -51,21 +46,20 @@ namespace minmpc.ViewModel {
 
             var mode = ReactivePropertyMode.DistinctUntilChanged;
 
-            Title = mpdClient.PlayerStatusAsObservable()
-                .Select(_ => _.Status.Title)
-                .ToReactiveProperty(Disposable, mode);
-
-            Artist = mpdClient.PlayerStatusAsObservable()
-                .Select(_ => _.Status.Artist)
-                .ToReactiveProperty(Disposable, mode);
-
-            Album = mpdClient.PlayerStatusAsObservable()
-                .Select(_ => _.Status.Album)
-                .ToReactiveProperty(Disposable, mode);
-
-            AlbumArtist = mpdClient.PlayerStatusAsObservable()
-                .Select(_ => _.Status.AlbumArtist)
-                .ToReactiveProperty(Disposable, mode);
+            SongId = new ReactiveProperty<int>();
+            Title = new ReactiveProperty<string>();
+            Artist = new ReactiveProperty<string>();
+            Album = new ReactiveProperty<string>();
+            AlbumArtist = new ReactiveProperty<string>();
+            mpdClient.PlayerStatusAsObservable()
+                .DistinctUntilChanged(_ => _.Status.SongId)
+                .Subscribe(_ => {
+                    Title.Value = _.Status.Title;
+                    Artist.Value = _.Status.Artist;
+                    Album.Value = _.Status.Album;
+                    AlbumArtist.Value = _.Status.AlbumArtist;
+                    SongId.Value = _.Status.SongId;
+                });
 
             Elapsed = mpdClient.PlayerStatusAsObservable()
                 .Select(_ => TimeSpan.FromSeconds(_.Status.Elapsed))
@@ -136,8 +130,8 @@ namespace minmpc.ViewModel {
             StopCommand.Subscribe(_ => mpdClient.Stop());
 
             IsVisible = new ReactiveProperty<bool>();
-            mpdClient.PlayerStatusAsObservable()
-                .Select(_ => _.Status.SongId)
+
+            SongId
                 .DistinctUntilChanged()
                 .Subscribe(_ => IsVisible.Value = true);
             PlaybackStatus

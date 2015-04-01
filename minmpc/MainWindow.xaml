@@ -14,6 +14,7 @@
         Foreground="#e8eaf0"
         FontSize="14" FontFamily="Meiryo, Segoe"
         Loaded="MainWindow_OnLoaded"
+        ContentRendered="MainWindow_OnContentRendered"
         Closed="MainWindow_OnClosed"
         MouseMove="MainWindow_OnMouseMove">
     <Window.Resources>
@@ -117,8 +118,8 @@
                                     <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity">
                                         <DoubleAnimationUsingKeyFrames.KeyFrames>
                                             <LinearDoubleKeyFrame KeyTime="0:0:0" Value="1"/>
-                                            <LinearDoubleKeyFrame KeyTime="0:0:4" Value="1"/>
-                                            <LinearDoubleKeyFrame KeyTime="0:0:6" Value="0"/>
+                                            <LinearDoubleKeyFrame KeyTime="0:0:5" Value="1"/>
+                                            <LinearDoubleKeyFrame KeyTime="0:0:8" Value="0"/>
                                         </DoubleAnimationUsingKeyFrames.KeyFrames>
                                     </DoubleAnimationUsingKeyFrames>
                                 </Storyboard>
@@ -192,16 +193,20 @@
                         <Run Text="{Binding Duration.Value, Mode=OneWay, Converter={StaticResource TimeFormatConverter}}"></Run>
                     </TextBlock>
                     <StackPanel Orientation="Vertical">
-                        <TextBlock FontSize="18">
-                            <Run Text="{Binding Artist.Value, Mode=OneWay}"/>
-                            <Run Text=" - "/>
-                            <Run Text="{Binding Title.Value, Mode=OneWay}"/>
-                        </TextBlock>
-                        <TextBlock Margin="0,6,0,0" FontSize="12">
-                            <Run Text="{Binding AlbumArtist.Value, Mode=OneWay}"/>
-                            <Run Text=" - "/>
-                            <Run Text="{Binding Album.Value, Mode=OneWay}"/>
-                        </TextBlock>
+                        <Grid Name="SongTextArea" ClipToBounds="True">
+                            <TextBlock Name="SongTextBlock" FontSize="18">
+                                <Run Text="{Binding Artist.Value, Mode=OneWay}"/>
+                                <Run Text=" - "/>
+                                <Run Text="{Binding Title.Value, Mode=OneWay}"/>
+                            </TextBlock>
+                        </Grid>
+                        <Grid Name="AlbumTextArea" ClipToBounds="True" Margin="0,6,0,0">
+                            <TextBlock Name="AlbumTextBlock" FontSize="12">
+                                <Run Text="{Binding AlbumArtist.Value, Mode=OneWay}"/>
+                                <Run Text=" - "/>
+                                <Run Text="{Binding Album.Value, Mode=OneWay}"/>
+                            </TextBlock>
+                        </Grid>
                     </StackPanel>
                 </DockPanel>
 

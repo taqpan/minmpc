@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Globalization;
+using System.Reactive.Linq;
+using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
-using Autofac;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using Autofac.AttributedComponent;
-using minmpc.Core;
 using minmpc.ViewModel;
 
 namespace minmpc {
@@ -35,6 +34,43 @@ namespace minmpc {
             hotkeyManager.Register(ModifierKeys.None, Key.MediaNextTrack, OnHotKeyNext);
             hotkeyManager.Register(ModifierKeys.None, Key.MediaPreviousTrack, OnHotKeyPrevious);
             hotkeyManager.Register(ModifierKeys.None, Key.MediaStop, OnHotKeyStop);
+        }
+
+        private void MainWindow_OnContentRendered(object sender, EventArgs e) {
+            viewModel.SongId
+                .DistinctUntilChanged()
+                .ObserveOn(SynchronizationContext.Current)
+                .Subscribe(_ => {
+                    computeTextScroll(SongTextArea, SongTextBlock);
+                    computeTextScroll(AlbumTextArea, AlbumTextBlock);
+                });
+        }
+
+        private void computeTextScroll(Grid area, TextBlock text) {
+            var ft = new FormattedText(
+                text.Text,
+                CultureInfo.CurrentUICulture,
+                FlowDirection.LeftToRight,
+                new Typeface(text.FontFamily, text.FontStyle, text.FontWeight, text.FontStretch),
+                text.FontSize,
+                text.Foreground);
+            if (text.HasAnimatedProperties) {
+                text.BeginAnimation(MarginProperty, null);
+            }
+            if (area.ActualWidth < ft.Width) {
+                var animation = new ThicknessAnimationUsingKeyFrames();
+                animation.KeyFrames.Add(new LinearThicknessKeyFrame(
+                    new Thickness(0),
+                    KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(0))));
+                animation.KeyFrames.Add(new LinearThicknessKeyFrame(
+                    new Thickness(0),
+                    KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(1000))));
+                animation.KeyFrames.Add(new LinearThicknessKeyFrame(
+                    new Thickness(-ft.Width, 0, 0, 0),
+                    KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(ft.Width * 20))));
+                animation.RepeatBehavior = RepeatBehavior.Forever;
+                text.BeginAnimation(MarginProperty, animation);
+            }
         }
 
         private void MainWindow_OnClosed(object sender, EventArgs e) {
