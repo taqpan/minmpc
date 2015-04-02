@@ -140,6 +140,9 @@
             </Style.Triggers>
         </Style>
     </Window.Style>
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="24" ResizeBorderThickness="8"/>
+    </WindowChrome.WindowChrome>
     <Border BorderThickness="1" BorderBrush="{StaticResource WindowBorderBrush}">
         <StackPanel Orientation="Vertical">
             <DockPanel Height="24" Background="{StaticResource CaptionAreaBrush}">
