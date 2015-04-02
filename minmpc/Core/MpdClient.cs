@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net.NetworkInformation;
 using System.Reactive.Linq;
 using System.Threading;
 using Autofac.AttributedComponent;

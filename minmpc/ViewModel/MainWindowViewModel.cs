@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reactive.Linq;
-using Autofac;
 using Autofac.AttributedComponent;
 using minmpc.Core;
 using Reactive.Bindings;
@@ -9,12 +8,6 @@ namespace minmpc.ViewModel {
     [Component(Scope = ComponentScope.SingleInstance)]
     internal class MainWindowViewModel : ViewModelBase {
         private const int ReplayThreashold = 3;
-
-        [Resource]
-        private ILifetimeScope CurrentScope;
-
-        [Resource]
-        private MpdClient mpdClient;
 
         public ReactiveProperty<int> SongId { get; private set; }
         public ReactiveProperty<string> Title { get; private set; }
@@ -42,8 +35,6 @@ namespace minmpc.ViewModel {
         public ReactiveProperty<bool> IsVisible { get; private set; }
 
         public MainWindowViewModel(MpdClient mpdClient) {
-            this.mpdClient = mpdClient;
-
             var mode = ReactivePropertyMode.DistinctUntilChanged;
 
             SongId = new ReactiveProperty<int>();

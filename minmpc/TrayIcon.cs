@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using Autofac.AttributedComponent;
 using minmpc.Properties;
@@ -23,7 +18,7 @@ namespace minmpc {
         public void Initialize() {
             var quitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             quitMenuItem.Text = "Quit";
-            quitMenuItem.Click += (sender, args) => System.Windows.Application.Current.Shutdown();
+            quitMenuItem.Click += (sender, args) => Application.Current.Shutdown();
 
             var contextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
             contextMenuStrip.Items.Add(quitMenuItem);
