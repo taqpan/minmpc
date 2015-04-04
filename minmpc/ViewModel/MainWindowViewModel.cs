@@ -80,14 +80,14 @@ namespace minmpc.ViewModel {
                 .Where(_ => _.RequestMethod != RequestMethods.Repeat)
                 .Select(_ => _.Status.Repeat)
                 .ToReactiveProperty(Disposable, mode);
-            Repeat.Select(_ => _)
+            Repeat
                 .Subscribe(_ => mpdClient.Repeat(Repeat.Value));
 
             Random = mpdClient.PlayerStatusAsObservable()
                 .Where(_ => _.RequestMethod != RequestMethods.Random)
                 .Select(_ => _.Status.Random)
                 .ToReactiveProperty(Disposable, mode);
-            Random.Select(_ => _)
+            Random
                 .Subscribe(_ => mpdClient.Random(Random.Value));
 
             PlayCommand = new ReactiveCommand();
@@ -110,7 +110,7 @@ namespace minmpc.ViewModel {
                 if (Elapsed.Value.TotalSeconds <= ReplayThreashold) {
                     mpdClient.Previous();
                 } else {
-                    mpdClient.Restart();
+                    mpdClient.SeekWithId(SongId.Value, 0);
                 }
             });
 

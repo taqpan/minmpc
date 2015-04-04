@@ -14,9 +14,8 @@ namespace minmpc.Core {
             var lines = statusText.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries);
             foreach (var line in lines) {
                 if (line.StartsWith("ACK")) {
-                    // TODO: error handling
                     Debug.WriteLine(line);
-                    break;
+                    return null;
                 } else if (line.StartsWith("OK")) {
                     break;
                 } else {

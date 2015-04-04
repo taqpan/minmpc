@@ -76,8 +76,8 @@ namespace minmpc.Core {
             execute(RequestMethods.Previous, "previous");
         }
 
-        public void Restart() {
-            execute(RequestMethods.Restart, new[] { "stop", "play" });
+        public void SeekWithId(int songId, int time) {
+            execute(RequestMethods.Restart, string.Format("seekid {0} {1}", songId, time));
         }
 
         public void Stop() {
@@ -131,7 +131,10 @@ namespace minmpc.Core {
 
         private void onResponded(RequestMethods requestMethod, string response) {
             if (PlayerStatusChanged != null) {
-                PlayerStatusChanged(new PlayerStatusEventArgs(requestMethod, PlayerStatusParser.Parse(response)));
+                var status = PlayerStatusParser.Parse(response);
+                if (status != null) {
+                    PlayerStatusChanged(new PlayerStatusEventArgs(requestMethod, status));
+                }
             }
         }
     }
