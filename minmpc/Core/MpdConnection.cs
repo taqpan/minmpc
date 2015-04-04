@@ -71,11 +71,14 @@ namespace minmpc.Core {
                 receivingStream.WriteAsync(buffer, 0, size, ct).Wait();
                 ct.ThrowIfCancellationRequested();
 
-                // the last line starts with "OK", all response is received.
+                // Last line starts with "OK" or "ACK", then all response is received.
                 var received = encoding.GetString(receivingStream.GetBuffer(), 0, size);
-                if (received.EndsWith("\n")) {
+                if (received.EndsWith("\n")) {  //  response must end with "\n".
+                    // find head of last line.
                     var n = received.LastIndexOf("\n", received.Length - 2, StringComparison.Ordinal);
-                    if (n < 0 || received.Substring(n + 1).StartsWith("OK")) {
+                    if (n < 0 ||
+                        received.Substring(n + 1).StartsWith("OK") ||
+                        received.Substring(n + 1).StartsWith("ACK")) {
                         return received;
                     }
                 }
