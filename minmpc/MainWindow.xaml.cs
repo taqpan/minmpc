@@ -66,8 +66,11 @@ namespace minmpc {
                     new Thickness(0),
                     KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(1000))));
                 animation.KeyFrames.Add(new LinearThicknessKeyFrame(
-                    new Thickness(-ft.Width, 0, 0, 0),
-                    KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(ft.Width * 20))));
+                    new Thickness(area.ActualWidth - ft.Width - 20, 0, 0, 0),
+                    KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(ft.Width * 10))));
+                animation.KeyFrames.Add(new LinearThicknessKeyFrame(
+                    new Thickness(area.ActualWidth - ft.Width - 20, 0, 0, 0),
+                    KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(ft.Width * 10 + 2000))));
                 animation.RepeatBehavior = RepeatBehavior.Forever;
                 text.BeginAnimation(MarginProperty, animation);
             }
