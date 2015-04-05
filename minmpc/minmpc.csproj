@@ -90,6 +90,7 @@
     <Compile Include="Converter\PlaybackStatusConverter.cs" />
     <Compile Include="Converter\TimeFormatConverter.cs" />
     <Compile Include="Core\ConnectionEventArgs.cs" />
+    <Compile Include="Core\EnumPlaylistEventArgs.cs" />
     <Compile Include="Core\EventAsObservable.cs" />
     <Compile Include="Core\MpdConnectionException.cs" />
     <Compile Include="Core\MpdEventArgs.cs" />
@@ -106,8 +107,12 @@
     <Compile Include="OptionsWindow.xaml.cs">
       <DependentUpon>OptionsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PlaylistWindow.xaml.cs">
+      <DependentUpon>PlaylistWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TrayIcon.cs" />
     <Compile Include="ViewModel\OptionsWindowViewModel.cs" />
+    <Compile Include="ViewModel\PlaylistWindowViewModel.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Page Include="MainWindow.xaml">
@@ -123,6 +128,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="OptionsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PlaylistWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

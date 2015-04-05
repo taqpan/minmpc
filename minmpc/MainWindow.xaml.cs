@@ -130,10 +130,18 @@ namespace minmpc {
             viewModel.IsVisible.Value = true;
         }
 
+        private void PlaylistButton_OnClick(object sender, RoutedEventArgs e) {
+            var playlistWindow = new PlaylistWindow();
+            playlistWindow.Owner = this;
+            playlistWindow.ShowDialog();
+            viewModel.IsVisible.Value = true;
+        }
+
         private void OptionsButton_OnClick(object sender, RoutedEventArgs e) {
             var optionsWindow = new OptionsWindow();
             optionsWindow.Owner = this;
             optionsWindow.ShowDialog();
+            viewModel.IsVisible.Value = true;
         }
     }
 }

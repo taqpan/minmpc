@@ -1,0 +1,28 @@
+﻿<Window x:Class="minmpc.PlaylistWindow"
+        x:ClassModifier="internal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="minmpc - Playlists"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResizeWithGrip" WindowStyle="ToolWindow"
+        Icon="minmpc.ico" ShowInTaskbar="True"
+        Height="240" Width="300"
+        MinHeight="240" MinWidth="300"
+        Loaded="PlaylistWindow_OnLoaded">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Bottom">
+            <Button DockPanel.Dock="Right" IsCancel="True"
+                    Margin="8" Width="80"
+                    Content="Cancel"/>
+            <Button DockPanel.Dock="Right" IsDefault="True"
+                    Margin="8" Width="80"
+                    Content="Play"
+                    Command="{Binding SelectCommand}"
+                    Click="ButtonBase_OnClick"/>
+            <Grid/>
+        </DockPanel>
+        <ListBox ItemsSource="{Binding Playlists.Value}"
+                 SelectedItem="{Binding SelectedPlaylist.Value}"
+                 MouseDoubleClick="PlaylistList_OnMouseDoubleClick"></ListBox>
+    </DockPanel>
+</Window>

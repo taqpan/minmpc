@@ -15,6 +15,7 @@ namespace minmpc.Core {
         public EventAsObservable<ConnectionEventArgs> ConnectionEvent = new EventAsObservable<ConnectionEventArgs>();
         public EventAsObservable<SongEventArgs> SongEvent = new EventAsObservable<SongEventArgs>();
         public EventAsObservable<PlaybackOptionsEventArgs> PlaybackOptionsEvent = new EventAsObservable<PlaybackOptionsEventArgs>();
+        public EventAsObservable<EnumPlaylistEventArgs> EnumPlaylistEvent = new EventAsObservable<EnumPlaylistEventArgs>();
         public EventAsObservable<PlayerErrorEventArgs> PlayerErrorEvent = new EventAsObservable<PlayerErrorEventArgs>();
 
         public MpdClient(MpdRequestManager requestManager) {
@@ -84,6 +85,26 @@ namespace minmpc.Core {
 
         public bool Consume(bool on) {
             return execute("consume " + (on ? "1" : "0"));
+        }
+
+        public bool ListPlaylists() {
+            return execute("listplaylists", response => {
+                Debug.WriteLine(response);
+                try {
+                    EnumPlaylistEvent.OnChanged(EnumPlaylistEventArgs.FromServerResponse(response));
+                } catch (MpdServerException e) {
+                    PlayerErrorEvent.OnChanged(new PlayerErrorEventArgs { Error = e.Message });
+                }
+            });
+        }
+
+        public bool SelectPlaylist(string playlist) {
+            return executePlaybackCommand(new[] {
+                "stop",
+                "clear",
+                "load " + playlist,
+                "play"
+            });
         }
 
         public bool RequestPlayerStatus() {

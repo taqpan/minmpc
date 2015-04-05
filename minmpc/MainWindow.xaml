@@ -186,6 +186,17 @@
                               RenderTransform="1,0,0,1,0,0"/>
                     </Grid>
                 </Button>
+                <Button DockPanel.Dock="Right"
+                        Style="{StaticResource SystemButtonStyle}"
+                        Margin="0,0,6,0"
+                        WindowChrome.IsHitTestVisibleInChrome="True"
+                        Click="PlaylistButton_OnClick">
+                    <Grid>
+                        <Path Data="M 0,0 v 4 h 4 v -4 Z m 0,6 v 4 h 4 v -4 Z m 0,6 v 4 h 4 v -4 Z M 6,1 v 2 h 10 v -2 Z m 0,6 v 2 h 10 v -2 Z m 0,6 v 2 h 10 v -2 Z"
+                              Fill="{StaticResource ButtonIconBrush}"
+                              RenderTransform="1,0,0,1,0,0"/>
+                    </Grid>
+                </Button>
                 <Grid/>
             </DockPanel>
             <StackPanel Orientation="Vertical" Margin="8,8,8,4">
