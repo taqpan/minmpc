@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace minmpc.Core {
     internal class SongEventArgs : MpdEventArgs {
         public int SongId { get; set; }
+        public string File { get; set; }
         public string Title { get; set; }
         public string Artist { get; set; }
         public string Album { get; set; }
@@ -22,6 +23,7 @@ namespace minmpc.Core {
         private static void initParser() {
             if (parser == null) {
                 parser = new Dictionary<string, Action<SongEventArgs, string>>();
+                parser.Add("file", (e, x) => { e.File = x; });
                 parser.Add("Title", (e, x) => { e.Title = x; });
                 parser.Add("Artist", (e, x) => { e.Artist = x; });
                 parser.Add("Album", (e, x) => { e.Album = x; });

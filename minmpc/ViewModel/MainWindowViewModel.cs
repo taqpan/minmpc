@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reactive.Linq;
 using Autofac.AttributedComponent;
 using minmpc.Core;
@@ -24,7 +25,6 @@ namespace minmpc.ViewModel {
         public ReactiveProperty<PlaybackStatus> PlaybackStatus { get; private set; }
         public ReactiveProperty<string> ErrorMessage { get; private set; }
 
-        public ReactiveCommand RefreshCommand { get; private set; }
         public ReactiveCommand PlayCommand { get; private set; }
         public ReactiveCommand PauseCommand { get; private set; }
         public ReactiveCommand PlayPauseCommand { get; private set; }
@@ -38,14 +38,14 @@ namespace minmpc.ViewModel {
             var mode = ReactivePropertyMode.DistinctUntilChanged;
 
             SongId = new ReactiveProperty<int>();
-            Title = new ReactiveProperty<string>();
-            Artist = new ReactiveProperty<string>();
-            Album = new ReactiveProperty<string>();
-            AlbumArtist = new ReactiveProperty<string>();
+            Title = new ReactiveProperty<string>(mode: mode);
+            Artist = new ReactiveProperty<string>(mode: mode);
+            Album = new ReactiveProperty<string>(mode: mode);
+            AlbumArtist = new ReactiveProperty<string>(mode: mode);
             mpdClient.SongEvent.AsObservable()
                 .DistinctUntilChanged(_ => _.SongId)
                 .Subscribe(_ => {
-                    Title.Value = _.Title;
+                    Title.Value = string.IsNullOrWhiteSpace(_.Title) ? Path.GetFileName(_.File) : _.Title;
                     Artist.Value = _.Artist;
                     Album.Value = _.Album;
                     AlbumArtist.Value = _.AlbumArtist;
