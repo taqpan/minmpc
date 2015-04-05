@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reactive.Linq;
 using System.Threading;
 using Autofac.AttributedComponent;
 
@@ -13,34 +12,19 @@ namespace minmpc.Core {
 
         private CancellationToken parentCancellationToken;
 
-        public event Action<ConnectionStatusEventArgs> ConnectionStatusChanged;
-        public IObservable<ConnectionStatusEventArgs> ConnectionStatusAsObservable() {
-            return Observable.FromEvent<Action<ConnectionStatusEventArgs>, ConnectionStatusEventArgs>(
-                h => h,
-                h => ConnectionStatusChanged += h,
-                h => ConnectionStatusChanged -= h);
-        }
-
-        public event Action<PlayerStatusEventArgs> PlayerStatusChanged;
-        public IObservable<PlayerStatusEventArgs> PlayerStatusAsObservable() {
-            return Observable.FromEvent<Action<PlayerStatusEventArgs>, PlayerStatusEventArgs>(
-                h => h,
-                h => PlayerStatusChanged += h,
-                h => PlayerStatusChanged -= h);
-        }
+        public EventAsObservable<ConnectionEventArgs> ConnectionEvent = new EventAsObservable<ConnectionEventArgs>();
+        public EventAsObservable<SongEventArgs> SongEvent = new EventAsObservable<SongEventArgs>();
+        public EventAsObservable<PlaybackOptionsEventArgs> PlaybackOptionsEvent = new EventAsObservable<PlaybackOptionsEventArgs>();
+        public EventAsObservable<PlayerErrorEventArgs> PlayerErrorEvent = new EventAsObservable<PlayerErrorEventArgs>();
 
         public MpdClient(MpdRequestManager requestManager) {
             requestManager.Connected += v => {
                 Debug.WriteLine("MpdClient - Connected");
-                if (ConnectionStatusChanged != null) {
-                    ConnectionStatusChanged(new ConnectionStatusEventArgs(true, v));
-                }
+                ConnectionEvent.OnChanged(new ConnectionEventArgs(true, v));
             };
             requestManager.Disconnected += () => {
                 Debug.WriteLine("MpdClient - Disconnected");
-                if (ConnectionStatusChanged != null) {
-                    ConnectionStatusChanged(new ConnectionStatusEventArgs(false));
-                }
+                ConnectionEvent.OnChanged(new ConnectionEventArgs(false));
             };
         }
 
@@ -56,67 +40,61 @@ namespace minmpc.Core {
             requestManager.StartAsync(parentCancellationToken);
         }
 
-        public void Refresh() {
-            execute(RequestMethods.Refresh, new string[] { });
+        public bool Play() {
+            return executePlaybackCommand("play");
         }
 
-        public void Play() {
-            execute(RequestMethods.Play, "play");
+        public bool Pause(bool on) {
+            return executePlaybackCommand("pause " + (on ? "1" : "0"));
         }
 
-        public void Pause(bool on) {
-            execute(RequestMethods.Pause, "pause " + (on ? "1" : "0"));
+        public bool Next() {
+            return executePlaybackCommand("next");
         }
 
-        public void Next() {
-            execute(RequestMethods.Next, "next");
+        public bool Previous() {
+            return executePlaybackCommand("previous");
         }
 
-        public void Previous() {
-            execute(RequestMethods.Previous, "previous");
+        public bool SeekWithId(int songId, int time) {
+            return executePlaybackCommand(string.Format("seekid {0} {1}", songId, time));
         }
 
-        public void SeekWithId(int songId, int time) {
-            execute(RequestMethods.Restart, string.Format("seekid {0} {1}", songId, time));
+        public bool Stop() {
+            return executePlaybackCommand("stop");
         }
 
-        public void Stop() {
-            execute(RequestMethods.Stop, "stop");
-        }
-
-        public void Volume(int value) {
+        public bool Volume(int value) {
             if (value < 0) value = 0;
             if (value > 100) value = 100;
-            execute(RequestMethods.Volume, string.Format("setvol {0}", value));
+            return execute(string.Format("setvol {0}", value));
         }
 
-        public void Repeat(bool on) {
-            execute(RequestMethods.Repeat, "repeat " + (on ? "1" : "0"));
+        public bool Repeat(bool on) {
+            return execute("repeat " + (on ? "1" : "0"));
         }
 
-        public void Random(bool on) {
-            execute(RequestMethods.Random, "random " + (on ? "1" : "0"));
+        public bool Random(bool on) {
+            return execute("random " + (on ? "1" : "0"));
         }
 
-        public void Single(bool on) {
-            execute(RequestMethods.Single, "single " + (on ? "1" : "0"));
+        public bool Single(bool on) {
+            return execute("single " + (on ? "1" : "0"));
         }
 
-        public void Consume(bool on) {
-            execute(RequestMethods.Consume, "consume " + (on ? "1" : "0"));
+        public bool Consume(bool on) {
+            return execute("consume " + (on ? "1" : "0"));
         }
 
-        private void execute(RequestMethods requestMethod, string command) {
-            execute(requestMethod, new[] { command });
+        public bool RequestPlayerStatus() {
+            return executePlaybackCommand(new string[] { });
         }
 
-        private void execute(RequestMethods requestMethod, IEnumerable<string> commands) {
-            if (!requestManager.AccesptsRequest) {
-                Connect();
-                Debug.WriteLine("RequestManager is not initialized. Trying to reconnect and a request has been ignored.");
-                return;
-            }
+        private bool executePlaybackCommand(string command) {
+            return executePlaybackCommand(new[] { command });
+        }
 
+        private bool executePlaybackCommand(IEnumerable<string> commands) {
             var cmds = new List<string>();
 
             cmds.Add("command_list_begin");
@@ -125,17 +103,39 @@ namespace minmpc.Core {
             cmds.Add("status");
             cmds.Add("command_list_end");
 
-            var req = new MpdRequest(String.Join("\n", cmds), s => onResponded(requestMethod, s));
-            requestManager.EnqueueRequest(req);
+            return execute(String.Join("\n", cmds), response => {
+                try {
+                    SongEvent.OnChanged(
+                        SongEventArgs.FromServerResponse(response));
+                    PlaybackOptionsEvent.OnChanged(
+                        PlaybackOptionsEventArgs.FromServerResponse(response));
+                } catch (MpdServerException e) {
+                    PlayerErrorEvent.OnChanged(new PlayerErrorEventArgs { Error = e.Message });
+                }
+            });
         }
 
-        private void onResponded(RequestMethods requestMethod, string response) {
-            if (PlayerStatusChanged != null) {
-                var status = PlayerStatusParser.Parse(response);
-                if (status != null) {
-                    PlayerStatusChanged(new PlayerStatusEventArgs(requestMethod, status));
+        private bool execute(string command) {
+            return execute(command, response => {
+                var e = PlayerErrorEventArgs.FromServerResponse(response);
+                if (e != null) {
+                    PlayerErrorEvent.OnChanged(e);
                 }
-            }
+            });
         }
+
+        private bool execute(string command, Action<string> onResponded) {
+            if (!requestManager.AccesptsRequest) {
+                Connect();
+                Debug.WriteLine("RequestManager is not initialized. Trying to reconnect and a request has been ignored.");
+                return false;
+            }
+
+            var req = new MpdRequest(command, onResponded);
+            requestManager.EnqueueRequest(req);
+
+            return true;
+        }
+
     }
 }

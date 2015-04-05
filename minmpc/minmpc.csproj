@@ -89,16 +89,19 @@
     </ApplicationDefinition>
     <Compile Include="Converter\PlaybackStatusConverter.cs" />
     <Compile Include="Converter\TimeFormatConverter.cs" />
-    <Compile Include="Core\ConnectionStatusEventArgs.cs" />
+    <Compile Include="Core\ConnectionEventArgs.cs" />
+    <Compile Include="Core\EventAsObservable.cs" />
     <Compile Include="Core\MpdConnectionException.cs" />
+    <Compile Include="Core\MpdEventArgs.cs" />
     <Compile Include="Core\MpdRequest.cs" />
     <Compile Include="Core\MpdClient.cs" />
     <Compile Include="Core\MpdConnection.cs" />
     <Compile Include="Core\MpdRequestManager.cs" />
-    <Compile Include="Core\PlayerStatus.cs" />
-    <Compile Include="Core\PlayerStatusParser.cs" />
-    <Compile Include="Core\PlayerStatusEventArgs.cs" />
-    <Compile Include="Core\RequestMethods.cs" />
+    <Compile Include="Core\MpdServerException.cs" />
+    <Compile Include="Core\PlaybackStatus.cs" />
+    <Compile Include="Core\PlayerErrorEventArgs.cs" />
+    <Compile Include="Core\PlaybackOptionsEventArgs.cs" />
+    <Compile Include="Core\SongEventArgs.cs" />
     <Compile Include="HotkeyManager.cs" />
     <Compile Include="OptionsWindow.xaml.cs">
       <DependentUpon>OptionsWindow.xaml</DependentUpon>

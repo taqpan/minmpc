@@ -149,7 +149,10 @@
                 <TextBlock DockPanel.Dock="Left" Margin="8,2">
                     minmpc - <Run Text="{Binding PlaybackStatus.Value, Converter={StaticResource PlaybackStatusConverter}}"/>
                 </TextBlock>
-                <TextBlock DockPanel.Dock="Left" Text="{Binding Error}"/>
+                <TextBlock DockPanel.Dock="Left"
+                           VerticalAlignment="Center"
+                           FontSize="10" Foreground="LightSalmon"
+                           Text="{Binding ErrorMessage.Value}"/>
                 <Button DockPanel.Dock="Right"
                         Style="{StaticResource SystemButtonStyle}"
                         Margin="0,0,3,0"

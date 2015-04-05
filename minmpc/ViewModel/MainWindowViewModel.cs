@@ -42,53 +42,50 @@ namespace minmpc.ViewModel {
             Artist = new ReactiveProperty<string>();
             Album = new ReactiveProperty<string>();
             AlbumArtist = new ReactiveProperty<string>();
-            mpdClient.PlayerStatusAsObservable()
-                .DistinctUntilChanged(_ => _.Status.SongId)
+            mpdClient.SongEvent.AsObservable()
+                .DistinctUntilChanged(_ => _.SongId)
                 .Subscribe(_ => {
-                    Title.Value = _.Status.Title;
-                    Artist.Value = _.Status.Artist;
-                    Album.Value = _.Status.Album;
-                    AlbumArtist.Value = _.Status.AlbumArtist;
-                    SongId.Value = _.Status.SongId;
+                    Title.Value = _.Title;
+                    Artist.Value = _.Artist;
+                    Album.Value = _.Album;
+                    AlbumArtist.Value = _.AlbumArtist;
+                    SongId.Value = _.SongId;
                 });
 
-            Elapsed = mpdClient.PlayerStatusAsObservable()
-                .Select(_ => TimeSpan.FromSeconds(_.Status.Elapsed))
+            Elapsed = mpdClient.SongEvent.AsObservable()
+                .Select(_ => TimeSpan.FromSeconds(_.Elapsed))
                 .ToReactiveProperty(Disposable, mode);
 
-            Duration = mpdClient.PlayerStatusAsObservable()
-                .Select(_ => TimeSpan.FromSeconds(_.Status.Duration))
+            Duration = mpdClient.SongEvent.AsObservable()
+                .Select(_ => TimeSpan.FromSeconds(_.Duration))
                 .ToReactiveProperty(Disposable, mode);
 
-            Volume = mpdClient.PlayerStatusAsObservable()
-                .Where(_ => _.RequestMethod != RequestMethods.Volume)
-                .Select(_ => (double)_.Status.Volume)
+            PlaybackStatus = mpdClient.SongEvent.AsObservable()
+                .Select(_ => _.PlaybackStatus)
+                .ToReactiveProperty(Disposable, mode);
+
+            Volume = mpdClient.PlaybackOptionsEvent.AsObservable()
+                .Select(_ => (double)_.Volume)
                 .ToReactiveProperty(Disposable, mode);
             Volume.Select(_ => Math.Round(_))
                 .DistinctUntilChanged()
                 .Subscribe(_ => mpdClient.Volume((int)_));
 
-            PlaybackStatus = mpdClient.PlayerStatusAsObservable()
-                .Select(_ => _.Status.PlaybackStatus)
-                .ToReactiveProperty(Disposable, mode);
-
-            ErrorMessage = mpdClient.PlayerStatusAsObservable()
-                .Select(_ => _.Status.Error)
-                .ToReactiveProperty(Disposable, mode);
-
-            Repeat = mpdClient.PlayerStatusAsObservable()
-                .Where(_ => _.RequestMethod != RequestMethods.Repeat)
-                .Select(_ => _.Status.Repeat)
+            Repeat = mpdClient.PlaybackOptionsEvent.AsObservable()
+                .Select(_ => _.Repeat)
                 .ToReactiveProperty(Disposable, mode);
             Repeat
                 .Subscribe(_ => mpdClient.Repeat(Repeat.Value));
 
-            Random = mpdClient.PlayerStatusAsObservable()
-                .Where(_ => _.RequestMethod != RequestMethods.Random)
-                .Select(_ => _.Status.Random)
+            Random = mpdClient.PlaybackOptionsEvent.AsObservable()
+                .Select(_ => _.Random)
                 .ToReactiveProperty(Disposable, mode);
             Random
                 .Subscribe(_ => mpdClient.Random(Random.Value));
+
+            ErrorMessage = mpdClient.PlayerErrorEvent.AsObservable()
+                .Select(_ => _.Error)
+                .ToReactiveProperty(Disposable, mode);
 
             PlayCommand = new ReactiveCommand();
             PlayCommand.Subscribe(_ => mpdClient.Play());
@@ -133,10 +130,10 @@ namespace minmpc.ViewModel {
             Observable.Interval(TimeSpan.FromMilliseconds(1000))
                 .Subscribe(_ => {
                     IsVisible.Value = false;
-                    mpdClient.Refresh();
+                    mpdClient.RequestPlayerStatus();
                 });
 
-            mpdClient.Refresh();
+            mpdClient.RequestPlayerStatus();
         }
     }
 }
